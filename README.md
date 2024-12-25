@@ -7,7 +7,7 @@ We collected 11,185 $\mathbb{X}$ posts, 489,529 Reddit posts, and 13,491 PubMed 
 By analyzing textual content using a Named Entity Recognition (NER) technique, we identified ASEs on social media that were not reported by manufacturers.
 Next, we constructed an ASE-ASE network, clustered ASEs with similar effects into groups, and estimated the frequency of unknown ASEs by training a Graph Convolutional Network model.
 Our data analytics approach uncovered 21 potential ASEs on social media, such as irritability and numbness, beyond the knowledge of existing pharmacovigilance data.
-Furthermore, our novel computational method successfully distinguished between frequent and infrequent ASEs (F1-score 0.79; AUC 0.82).
+Furthermore, our novel computational method successfully distinguished between frequent and infrequent ASEs (F1-score 0.81; AUC 0.83).
 Our knowledge-discovery approach can be applied to any drug discussed on social media to identify novel ASEs and estimate their frequencies.
 }
 
