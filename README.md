@@ -1,15 +1,13 @@
 # GLP1 Project
 
 ## Overview
-Social media data has great potential to uncover novel ASEs unreported by manufacturers and explore patterns of co-occurring ASEs. 
-This exploration is vital due to the individual nuances often overlooked in small-scale clinical trials.
-We collected 11,185 $\mathbb{X}$ posts, 489,529 Reddit posts, and 13,491 PubMed publications related to GLP-1 receptor agonists. 
-By analyzing textual content using a Named Entity Recognition (NER) technique, we identified ASEs on social media that were not reported by manufacturers.
-Next, we constructed an ASE-ASE network, clustered ASEs with similar effects into groups, and estimated the frequency of unknown ASEs by training a Graph Convolutional Network model.
-Our data analytics approach uncovered 21 potential ASEs on social media, such as irritability and numbness, beyond the knowledge of existing pharmacovigilance data.
-Furthermore, our novel computational method successfully distinguished between frequent and infrequent ASEs (F1-score 0.81; AUC 0.83).
-Our knowledge-discovery approach can be applied to any drug discussed on social media to identify novel ASEs and estimate their frequencies.
-}
+Unreported adverse side effects (ASEs) of prescription medications pose significant risks and are difficult to identify post-release. 
+Guided by the Design Science Research paradigm, we present ALERT (Advanced Learning for Early Risk Tracking), an AI-powered analytical information system for early risk detection across complex domains. 
+ALERT integrates heterogeneous data from social media posts, ChatGPT-generated insights, pharmaceutical reports, and biomedical knowledge, utilizing graph learning and natural language processing to transform fragmented data into actionable insights. 
+We applied ALERT to the popular glucagon-like peptide-1 receptor agonists (GLP-1 RAs) medications for treating diabetes and obesity, a rapidly growing market estimated at \$133.5 billion by 2030.
+ALERT identified 21 potential ASEs overlooked by clinical trials. 
+Prioritization of these ASEs was based on temporal trends and predicted frequency, achieving strong performance (F1-score 0.81, AUC 0.83). 
+ALERT provides an early warning system to detect risks, prioritize interventions, and support proactive clinical decision-making and risk mitigation.
 
 # Repository Contents
 ## Papaer LateX Documents
@@ -47,7 +45,7 @@ Please send any questions you might have about the code and/or the algorithm to.
 If you find this code useful for your research, please consider citing us:
 ```
 @article{GLP1RA,
-  title     = {Social Media Analytics for Knowledge Discovery Beyond Standard Pharmacovigilance: Uncovering Side Effects of GLP-1 Receptor Agonists},
+  title     = {Leveraging AI for ALERT: Advanced Learning for Early Risk Tracking},
   author    = {},
   journal   = {},
   volume    = {},
