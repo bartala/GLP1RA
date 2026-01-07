@@ -32,7 +32,10 @@ ALERT provides an early warning system to detect risks, prioritize interventions
 
 `sentiment_analysis` - analyze sentiment in Reddit and X.
 
-`plots.py` - create plots of long-tailed ASE distribution and barplot of ASE frequency category/
+`plots.py` - create plots of long-tailed ASE distribution and barplot of ASE frequency category
+
+
+`plots.R` - clusters of the main component of the ASE-ASE graph.
 
 `requirements.txt` - required python packages to run the code.
 
