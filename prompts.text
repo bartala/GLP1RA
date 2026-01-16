@@ -1,0 +1,257 @@
+POSTS_PROMPT = """You are a helpful assistant that annotates posts on a social media platform about GLP-1 medications.
+
+Annotate only what is explicitly written in the title and self‑text.  
+• Apply every label that fits, except Transitory Period – choose exactly one stage.  
+• Output must follow the JSON template at the end (no markdown, no extra keys).
+
+# Title and Post  
+{title_post}
+
+---
+
+## Annotation Steps
+
+**Step 1: Identify Post Type (Primary Focus)**
+Determine the main purpose or topic of the post. Choose the type(s) of the post in the following (multiple if needed):
+
+* **Post_Type-Brand_Change_Inquiry**: The user is asking about or discussing switching between GLP-1 brands.
+    * *Examples:* "Should I switch from Ozempic to Mounjaro?", "Experiences moving from Trulicity to Wegovy?"
+* **Post_Type-Pricing_Insurance_Inquiry**: The user is asking about or discussing the cost, insurance coverage, or affordability of GLP-1 drugs.
+    * *Examples:* "How much does Zepbound cost without insurance?", "Is Ozempic covered by Medicare?", "Looking for info on Mounjaro coupons."
+* **Post_Type-Side_Effect_Inquiry**: The user is asking about or discussing side effects of GLP-1 drugs.
+    * *Examples:* "Anyone else get bad nausea on Wegovy?", "Tips for managing Ozempic burps?", "Concerned about Mounjaro's GI issues."
+* **Post_Type-General_Information_Inquiry**: The user is asking for general information, advice, or experiences not specifically tied to brand changes, pricing, or side effects. This includes general usage, effectiveness, or broad questions.
+    * *Examples:* "What's it like starting Rybelsus?", "Does Victoza really help with appetite?", "General thoughts on GLP-1s for weight loss."
+* **Post_Type-Experiential_Share**: The user is primarily sharing their personal experience with GLP-1 drugs without explicitly asking a direct question for information on a specific topic.
+    * *Examples:* "My journey on Ozempic has been amazing!", "Just hit 6 months on Mounjaro, here's my progress.", "Sharing my struggle with Wegovy side effects."
+
+---
+
+**Step 2: Identify and Classify GLP-1 Brands and Their Status**
+For each GLP‑1 brand drug explicitly mentioned, identify its name, classify its generic class, and determine the user's current relationship with it.
+
+* **GLP‑1 BRAND LEXICON (for reference):**
+    ```json
+    {{
+      "Semaglutide": ["Ozempic", "Rybelsus", "Wegovy", "semaglutide acetate"],
+      "Tirzepatide": ["Zepbound", "Mounjaro"],
+      "Dulaglutide": ["Trulicity"],
+      "Liraglutide": ["Victoza", "Saxenda"],
+      "Exenatide": ["Byetta", "Bydureon", "Bydureon BCise"],
+      "Lixisenatide": ["Adlyxin", "Lyxumia"],
+      "Albiglutide": ["Tanzeum"]
+    }}
+    ```
+* **Drug Name**: The specific brand name mentioned (e.g., "Ozempic", "Zepbound").
+* **Drug Class**: The generic classification from the lexicon (e.g., "Semaglutide", "Tirzepatide"). If a mentioned brand is not in the lexicon, use "Unknown".
+* **Status (choose ONE per drug, prefixed by brand name):**
+    * `<Brand>_Status-Used`: The user has taken or is currently taking the drug.
+        * *Examples:* "I'm on Ozempic," "I've been using Mounjaro for 3 months," "Started Trulicity last week."
+    * `<Brand>_Status-Stopped`: The user has quit or paused taking the drug.
+        * *Examples:* "I stopped Wegovy," "Had to quit Rybelsus," "Took a break from Saxenda."
+    * `<Brand>_Status-Considering`: The user is thinking about trying the drug.
+        * *Examples:* "Considering Zepbound," "Thinking of asking my doctor about Ozempic," "Might try Mounjaro next."
+    * `<Brand>_Status-Unknown`: The user mentions the drug, but their status regarding its use is unclear from the text.
+        * *Examples:* "What's everyone's experience with Byetta?", "Heard about Adlyxin."
+
+---
+
+**Step 3: Identify Rhetorical Tactics (Multi-Label, apply broadly to the post's discussion of GLP-1s)**
+Identify the persuasive strategies or communication styles used by the user when discussing GLP-1s in general or specific drugs. Apply **multi-labels** as applicable. These labels are *not* prefixed by brand names.
+
+* `Ethos-Professional`: The user cites formal authority, professional credentials, or expert opinions to build credibility.
+    * *Examples:* "As a doctor, I recommend GLP-1s for weight management," "My endocrinologist said these drugs are effective."
+* `Ethos-Personal`: The user builds credibility by sharing their personal lived experience or testimony.
+    * *Examples:* "I've lost 40 lbs on Wegovy, so I know it works," "After struggling for years, Mounjaro finally helped me."
+* `Pathos-Encouragement`: The user expresses cheerleading, motivation, or positive reinforcement for others.
+    * *Examples:* "You’ve got this! Keep going with your GLP-1 journey," "Don't give up on Zepbound, it gets better."
+* `Pathos-Distress`: The user expresses negative emotions such as sadness, anxiety, frustration, anger, or shame related to GLP-1s.
+    * *Examples:* "Zepbound is wrecking my stomach, I'm so frustrated," "The constant nausea makes me miserable."
+* `Pathos-Humor`: The user uses humor, sarcasm, self-deprecation, or lightheartedness to discuss their experience with GLP-1s.
+    * *Examples:* "My Ozempic burps sound like a demon trying to escape," "These sulfur burps are my new hobby, lol."
+* `Pathos-Awe_Wonder`: The user expresses amazement, admiration, or a sense of wonder about the GLP-1 effects.
+    * *Examples:* "It’s magic—completely changed my appetite, I'm stunned," "This drug is truly incredible."
+* `Pathos-Empathy_Solidarity`: The user expresses shared struggle, understanding, or validation for others' experiences with GLP-1s.
+    * *Examples:* "Same here on Mounjaro—hang in there, you're not alone," "I totally get the fatigue, it's brutal."
+* `Advice-Seeking`: The user explicitly asks for help, information, suggestions, or opinions from others regarding GLP-1s or specific drugs.
+    * *Examples:* "Anyone try Trulicity for ADHD, and did it help?," "What are your tips for managing nausea?"
+* `Logos-Evidence_RCT`: The user refers to scientific studies, clinical trials (especially Randomized Controlled Trials), or medical research to support a claim about GLP-1s.
+    * *Examples:* "Wegovy was in the STEP-1 trial which showed significant weight loss," "Studies confirm that Mounjaro is superior for glycemic control."
+* `Logos-Numeric_Claim`: The user includes specific statistics, percentages, weight loss numbers, A1c numbers, or dosages related to GLP-1s.
+    * *Examples:* "Lost 15 lbs in 6 weeks on Rybelsus," "My A1c dropped from 8.5 to 6.2 on Mounjaro."
+* `Logos-Mechanistic`: The user describes how GLP-1s work biologically or pharmacologically.
+    * *Examples:* "Ozempic slows digestion and triggers satiety signals," "Mounjaro activates both GIP and GLP-1 receptors."
+* `Logos-Comparative`: The user compares GLP-1s to other drugs, treatments, or methods.
+    * *Examples:* "Saxenda gave me more side effects than Mounjaro," "Ozempic is much better for appetite suppression than diet pills."
+* `Logos-Cost`: The user refers to the price, cost, insurance coverage, or affordability of GLP-1s.
+    * *Examples:* "Wegovy is $150/month even with insurance, it's so expensive," "My Mounjaro prescription isn't covered by my new plan."
+
+---
+
+**Step 4: Identify Sentiment (One per drug, based on overall tone towards that drug)**
+Indicate the overall sentiment expressed by the user towards the specific drug. Choose **one** per drug. When assessing, consider the predominant sentiment across all mentions of that specific drug. If various phrases related to the same drug express different sentiments, choose the overall strongest sentiment expressed towards that drug, and capture conflicting emotional expressions via rhetorical tactics (e.g., `Pathos-Distress` and `Pathos-Awe_Wonder`).
+
+* `Sentiment-Positive`: The user expresses hopeful, satisfied, or favorable feelings.
+    * *Example:* “Wegovy is amazing—best decision ever.”
+* `Sentiment-Negative`: The user expresses frustrated, unhappy, or unfavorable feelings, or states they quit due to issues.
+    * *Example:* “Ozempic side effects were unbearable.”
+* `Sentiment-Neutral`: The user expresses factual, undecided, or ambivalent feelings.
+    * *Example:* “Thinking of trying Rybelsus.”
+
+---
+
+**Step 5: Identify External Sources (Multi-Label, per drug)**
+Indicate whether the user mentions encountering information about the drug from these external sources. Apply **multi-labels** per drug as applicable. These labels are *not* prefixed by brand names.
+
+* `External-Commercial_Ad`: Mention of seeing a commercial advertisement (TV, online, print).
+    * *Example mention:* “Saw a TV ad for Wegovy last night.”
+* `External-Celebrity_Influencer`: Mention of a celebrity, public figure, or social media influencer promoting or discussing the drug.
+    * *Example mention:* “Oprah talked about Ozempic on her show.”
+* `External-News_Media`: Mention of traditional news outlets (newspapers, news websites, TV news segments).
+    * *Example mention:* “NYT article said there’s a Wegovy shortage.”
+* `External-Social_Media_General`: Mention of general discussions or trends on social media platforms (Reddit, TikTok, Facebook, Instagram) that are not celebrity/influencer specific.
+    * *Example mention:* “Everyone’s talking about Mounjaro on Reddit/TikTok.”
+
+---
+
+**Step 6: Identify Expected Benefits (Multi-Label, per drug)**
+Identify the benefits the user desires or has experienced from using the drug. Apply **multi-labels** per drug as applicable. These labels are *not* prefixed by brand names.
+
+* `Benefit-Weight_Loss`: The user wants or has experienced a reduction in body weight.
+    * *Example phrase:* “Lost 30 lbs on Wegovy.”
+* `Benefit-Alcohol_Reduction`: The user aims to reduce alcohol consumption or finds their desire for alcohol has decreased.
+    * *Example phrase:* “Stopped drinking since starting Ozempic.”
+* `Benefit-Appetite_Suppression`: The user feels full, has reduced hunger, or experiences decreased food cravings.
+    * *Example phrase:* “I barely get hungry now.”
+* `Benefit-ADHD_Focus`: The user expects or experiences improvement in attention, focus, or symptoms related to ADHD.
+    * *Example phrase:* “Zepbound actually helps me focus.”
+* `Benefit-Sleep_Apnea`: The user expects or experiences improvement in sleep quality or sleep apnea.
+    * *Example phrase:* “Apnea improved after I started Mounjaro.”
+
+---
+
+**Step 7: Identify Side Effect Types (Multi-Label, per drug)**
+Identify specific types of adverse reactions or side effects experienced by the user. Apply **multi-labels** per drug as applicable. These labels are *not* prefixed by brand names.
+
+* `SE-GI_Nausea_Vomiting`: Nausea, vomiting, indigestion, or sulfur burps.
+    * *Example phrase:* “Constant nausea on Wegovy.”
+* `SE-GI_Diarrhea_Constipation`: Issues with bowel movements such as diarrhea or constipation.
+    * *Example phrase:* “Bydureon gave me diarrhea for weeks.”
+* `SE-GI_Pain_Bloating`: Stomach pain, abdominal cramps, or bloating.
+    * *Example phrase:* “My stomach cramps after every Mounjaro dose.”
+* `SE-Appetite_Suppression`: An extreme or unwanted lack of appetite that makes eating difficult.
+    * *Example phrase:* “I can’t eat anything—literally never hungry.”
+* `SE-Hypoglycemia`: Episodes of low blood sugar.
+    * *Example phrase:* “Blood sugar dropped to 60.”
+* `SE-Headache_Dizziness`: Headaches, migraines, or feelings of lightheadedness/dizziness.
+    * *Example phrase:* “Severe migraines since starting Saxenda.”
+* `SE-Fatigue`: Extreme tiredness, lethargy, or lack of energy.
+    * *Example phrase:* “Always tired on Ozempic.”
+* `SE-Injection_Site`: Reactions at the injection site such as redness, bruising, swelling, or pain.
+    * *Example phrase:* “Bruising where I inject Wegovy.”
+* `SE-Cardiovascular`: Issues related to heart rate, blood pressure, or other heart conditions.
+    * *Example phrase:* “Heart races after Trulicity dose.”
+* `SE-Gallbladder_Pancreas`: Problems with the gallbladder (e.g., gallstones) or pancreas (e.g., pancreatitis).
+    * *Example phrase:* “I had pancreatitis after Saxenda.”
+* `SE-Other`: Any other side effect not covered by the above categories (e.g., hair loss, insomnia, weird taste in mouth).
+    * *Example phrase:* “Hair loss, weird taste in mouth.”
+
+---
+
+**Step 8: Identify Reasons for Discontinuation (Multi-Label, per drug)**
+Identify the reasons why the user stopped or paused taking the drug. Apply **multi-labels** per drug as applicable. These labels are *not* prefixed by brand names.
+
+* `Discontinue-Side_Effects`: Stopped due to unpleasant physical or mental side effects.
+    * *Example phrase:* “Had to quit Mounjaro because of nausea.”
+* `Discontinue-Cost_Insurance`: Stopped due to high price or lack of insurance coverage.
+    * *Example phrase:* “Trulicity isn’t covered anymore.”
+* `Discontinue-Provider_Instruction`: Stopped because a doctor or healthcare provider advised it.
+    * *Example phrase:* “Doctor told me to stop Rybelsus.”
+* `Discontinue-Social_Influence`: Stopped due to pressure or influence from family, friends, or social media.
+    * *Example phrase:* “My family pressured me to quit Ozempic.”
+* `Discontinue-Supply_Access`: Stopped because the drug was unavailable or difficult to obtain.
+    * *Example phrase:* “Can't get Wegovy anywhere right now.”
+* `Discontinue-No_Benefit`: Stopped because the user did not experience the desired effects or benefits.
+    * *Example phrase:* “Didn’t lose weight on Saxenda, so I stopped.”
+* `Discontinue-Framing`: Stopped due to personal beliefs, stigma, or a feeling that taking medication for weight loss is "cheating."
+    * *Example phrase:* “Feels like cheating—I want to lose weight naturally.”
+* `Discontinue-Life_Event/Logistics`: Stopped due to an unrelated life event or logistical issue (e.g., travel, pregnancy, surgery).
+    * *Example phrase:* “I stopped Mounjaro because I’m pregnant.”
+
+---
+
+**Step 9: Identify Bureaucracy-Related Frictions (Multi-Label, per drug)**
+Identify reasons for discontinuation specifically related to administrative or systemic barriers. Apply **multi-labels** per drug as applicable. These labels are *not* prefixed by brand names.
+
+* `Friction-PA_Delay`: Stopped due to prolonged or failed prior authorization (PA) processes.
+    * *Example:* “Still waiting on prior auth so I just gave up on Ozempic.”
+* `Friction-Pharmacy_Error`: Stopped due to the prescription being sent incorrectly, wrong dose, or a mix-up at the pharmacy.
+    * *Example:* “They sent the wrong Mounjaro dose three times, so I never started.”
+* `Friction-Provider_Nonresponse`: Stopped due to lack of follow-up, delay, or confusion in communication with the provider.
+    * *Example:* “I messaged my doctor for days about my Trulicity refill and got no answer.”
+* `Friction-Coordination_Breakdown`: Stopped due to a breakdown in coordination between provider, pharmacy, insurer, or staff.
+    * *Example:* “Receptionist said one thing, nurse another about my Wegovy—I just gave up.”
+* `Friction-Incorrect_Dose_Start`: Stopped due to inappropriate dose restart (e.g., too low after previously titrated to a higher dose).
+    * *Example:* “They restarted me on Zepbound at .25mg after I’d been on 2.4mg—made no sense.”
+
+---
+
+**Step 10: Identify Global Transitory Period (One per post)**
+This label describes the user's **overall stage of change** regarding GLP-1 medication for the entire post. Choose **exactly one** label.
+
+* `Transitory_Pre-Contemplation`: The user completely rejects the idea of taking GLP-1 medications and is not considering them.
+    * *Example:* “I don't need meds for weight loss, diet and exercise are enough.”
+* `Transitory_Contemplation`: The user is considering taking a GLP-1 medication but is still unsure or weighing their options.
+    * *Example:* “Thinking of trying Saxenda, but I'm worried about side effects.”
+* `Transitory_Preparation`: The user has decided to start a GLP-1 medication, has a prescription, and is ready to begin.
+    * *Example:* “Starting Wegovy next week, just picked up my first pen.”
+* `Transitory_Action`: The user is actively using a GLP-1 medication and has recently started (typically within the last 6 months).
+    * *Example:* “Just took my 3rd Ozempic shot, feeling good so far.”
+* `Transitory_Maintenance`: The user has been consistently using a GLP-1 medication for 6 months or longer and is in a stable routine.
+    * *Example:* “Been on Mounjaro 10 months and it's been great for maintaining my weight.”
+* `Transitory_Relapse / Discontinuation`: The user has recently stopped or paused taking a GLP-1 medication. This is for users who have *already* stopped, distinct from "stopped" under drug status, which is per-drug. This signifies a broader state of cessation from GLP-1 treatment.
+    * *Example:* “Had to stop Rybelsus due to insurance, really bummed.”
+
+---
+
+## JSON OUTPUT FORMAT
+
+```json
+{{
+  "Post_Type-Experiential_Share": "My journey on Ozempic has been amazing!",
+  "Transitory_Maintenance": "Been on Mounjaro 10 months and it's been great",
+  "Ethos-Personal": "I've lost 40 lbs on Wegovy, so I know it works",
+  "Pathos-Encouragement": "You've got this! Keep going with your GLP-1 journey",
+  "Logos-Numeric_Claim": "Lost 15 lbs in 6 weeks on Rybelsus",
+  "glp1_drugs": [
+    {{
+      "name": "Ozempic",
+      "drug_class": "Semaglutide",
+      "status": "Ozempic_Status-Used",
+      "status_text": "I'm on Ozempic",
+      "expected_benefits": {{
+        "Benefit-Weight_Loss": "Lost 30 lbs on Wegovy",
+        "Benefit-Appetite_Suppression": "I barely get hungry now"
+      }},
+      "side_effect_types": {{
+        "SE-GI_Nausea_Vomiting": "Constant nausea on Wegovy"
+      }},
+      "reasons_for_discontinuation": {{
+        "Discontinue-Side_Effects": "Had to quit Mounjaro because of nausea"
+      }},
+      "bureaucracy_frictions": {{
+        "Friction-PA_Delay": "Still waiting on prior auth so I just gave up on Ozempic"
+      }},
+      "drug_sentiment": "Positive",
+      "drug_sentiment_text": "Ozempic has been amazing for me",
+      "external_sources": {{
+        "External-Commercial_Ad": "Saw a TV ad for Wegovy last night",
+        "External-Celebrity_Influencer": "",
+        "External-News_Media": "",
+        "External-Social_Media_General": ""
+      }}
+    }}
+    // Add more drug objects as needed
+  ]
+}}
+Now, analyze the following Reddit post and output the JSON according to the schema above: """
