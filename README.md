@@ -1,13 +1,13 @@
 # GLP1 Project
 
 ## Overview
-Unreported adverse side effects (ASEs) of prescription medications pose significant risks and are difficult to identify post-release. 
-Guided by the Design Science Research paradigm, we present ALERT (Advanced Learning for Early Risk Tracking), an AI-powered analytical information system for early risk detection across complex domains. 
-ALERT integrates heterogeneous data from social media posts, ChatGPT-generated insights, pharmaceutical reports, and biomedical knowledge, utilizing graph learning and natural language processing to transform fragmented data into actionable insights. 
-We applied ALERT to the popular glucagon-like peptide-1 receptor agonists (GLP-1 RAs) medications for treating diabetes and obesity, a rapidly growing market estimated at \$133.5 billion by 2030.
-ALERT identified 21 potential ASEs overlooked by clinical trials. 
-Prioritization of these ASEs was based on temporal trends and predicted frequency, achieving strong performance (F1-score 0.81, AUC 0.83). 
-ALERT provides an early warning system to detect risks, prioritize interventions, and support proactive clinical decision-making and risk mitigation.
+Early identification of emerging risks from fragmented, noisy evidence remains a central
+challenge in the Intelligence Phase of decision making, where weak signals must be
+interpreted under deep uncertainty. We introduce ALERT (Advanced Learning for Early Risk Tracking), a multimodal AI-enabled
+decision support framework that operationalizes organizational sense-making through
+evidence triangulation and intelligence augmentation. ALERT integrates social media
+discourse, biomedical literature, and structured pharmacovigilance data to detect,
+calibrate, and prioritize candidate adverse side effects (ASEs). Applied to the domain of GLP-1 receptor agonists, ALERT empirically identified 134 ASEs and surfaces 21 novel signals absent from manufacturer labels and established databases. ALERT uncovers a stable logarithmic relationship between social media frequency and validated sources ($R^2= 0.99$), enabling principled credibility calibration of weak signals. A graph convolutional network captures ASE co-occurrence structure to prioritize risks (F1 = 0.81). Beyond detection, ALERT supports actionable decision support via age-stratified risk profiling ($p < 0.05$) and prediction of treatment discontinuation drivers (F1 = 0.78). Notably, several candidate ASEs initially identified only in social media, including aura-related migraine, ketonemia, and psychiatric effects, were later reported in post-2024 clinical and observational studies, supporting ALERT’s early signal detection capability. This work demonstrates how AI transforms unstructured data into auditable decision cues in uncertain medical and business settings.
 
 # Repository Contents
 ## Papaer LateX Documents
