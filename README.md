@@ -48,11 +48,11 @@ Please send any questions you might have about the code and/or the algorithm to.
 If you find this code useful for your research, please consider citing us:
 ```
 @article{GLP1RA,
-  title     = {Leveraging AI for ALERT: Advanced Learning for Early Risk Tracking},
-  author    = {},
-  journal   = {},
-  volume    = {},
-  number    = {},
-  pages     = {from page– to page},
-  year      = {}
+  title   = {{ALERT}: An AI-enabled decision support approach for early risk monitoring from heterogeneous data},
+  author  = {Bartal, Alon and Pliskin, Nava and Jagodnik, Kathleen M. and Galea-Curmi, Ganni and Seidmann, Abraham},
+  journal = {Decision Support Systems},
+  volume  = {},
+  number  = {},
+  pages   = {114684},
+  year    = {2026}
 }
